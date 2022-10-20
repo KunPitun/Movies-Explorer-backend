@@ -29,6 +29,7 @@ module.exports.createMovie = (req, res, next) => {
     duration,
     director,
     country,
+    movieId,
   } = req.body;
   Movie.create({
     nameRU,
@@ -42,6 +43,7 @@ module.exports.createMovie = (req, res, next) => {
     director,
     country,
     owner: req.user._id,
+    movieId,
   })
     .then((movie) => res.send({ data: movie }))
     .catch((err) => {
