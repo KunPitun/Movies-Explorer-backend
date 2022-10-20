@@ -9,8 +9,8 @@ const notFoundErrorMessage = 'Фильм с данным _id не найден';
 const internalServerErrorMessage = 'Ошибка на стороне сервера';
 const forbiddenErrorMessage = 'Недостаточно прав для выполнения данного действия';
 
-module.exports.getAllMovies = (req, res, next) => {
-  Movie.find({})
+module.exports.getMyMovies = (req, res, next) => {
+  Movie.find({ owner: req.user._id })
     .then((movies) => res.send({ data: movies }))
     .catch(() => {
       next(new InternalServerError(internalServerErrorMessage));
