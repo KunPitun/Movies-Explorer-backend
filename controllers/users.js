@@ -23,10 +23,6 @@ module.exports.getUserMe = (req, res, next) => {
         next(err);
         return;
       }
-      if (err.name === 'CastError') {
-        next(new BadRequestError(badRequestErrorMessage));
-        return;
-      }
       next(new InternalServerError(internalServerErrorMessage));
     });
 };
@@ -41,6 +37,10 @@ module.exports.updateUser = (req, res, next) => {
     })
     .then((user) => res.send({ data: user }))
     .catch((err) => {
+      if (err.code === 11000) {
+        next(new ConflictError(conflictErrorMessage));
+        return;
+      }
       if (err.name === 'ValidationError') {
         next(new BadRequestError(err.message));
         return;
