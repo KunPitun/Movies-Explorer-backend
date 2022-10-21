@@ -14,7 +14,7 @@ const routes = require('./routes');
 const { PORT = 3000, NODE_ENV, DB_NAME } = process.env;
 const app = express();
 
-mongoose.connect(NODE_ENV === 'production' ? DB_NAME : 'testdb', {
+mongoose.connect(NODE_ENV === 'production' ? DB_NAME : 'mongodb://localhost:27017/testdb', {
   useNewUrlParser: true,
 });
 
@@ -29,13 +29,13 @@ app.use((req, res, next) => {
   next();
 });
 
+app.use(requestLogger);
+
 app.use(limiter);
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
-
-app.use(requestLogger);
 
 app.use(routes);
 
