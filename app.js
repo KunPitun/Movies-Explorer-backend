@@ -6,6 +6,7 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const { errors } = require('celebrate');
 const cors = require('cors');
+const { developmentDbName } = require('./utils/config');
 const errorsHandler = require('./middlewares/errors');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 const { limiter } = require('./middlewares/rate-limiter');
@@ -14,7 +15,7 @@ const routes = require('./routes');
 const { PORT = 3000, NODE_ENV, DB_NAME } = process.env;
 const app = express();
 
-mongoose.connect(NODE_ENV === 'production' ? DB_NAME : 'mongodb://localhost:27017/testdb', {
+mongoose.connect(NODE_ENV === 'production' ? DB_NAME : developmentDbName, {
   useNewUrlParser: true,
 });
 

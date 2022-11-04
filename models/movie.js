@@ -2,60 +2,72 @@ const mongoose = require('mongoose');
 const validator = require('validator');
 const {
   urlValidationErrorMessage,
-} = require('../validators/validation-messages');
+  movieSchemaNameRuRequiredErrorMessage,
+  movieSchemaNameEnRequiredErrorMessage,
+  movieSchemaOwnerRequiredErrorMessage,
+  moviesSchemaThumbnailRequiredErrorMessage,
+  moviesSchemaDescriptionRequiredErrorMessage,
+  moviesSchemaTrailerLinkRequiredErrorMessage,
+  moviesSchemaImageRequiredErrorMessage,
+  moviesSchemaYearRequiredErrorMessage,
+  moviesSchemaDurationRequiredErrorMessage,
+  moviesSchemaDirectorRequiredErrorMessage,
+  moviesSchemaCountryRequiredErrorMessage,
+  moviesSchemaMovieIdRequiredErrorMessage,
+} = require('../utils/messages');
 
 const movieSchema = new mongoose.Schema({
   nameRU: {
     type: String,
-    required: [true, 'Не указано название на русском'],
+    required: [true, movieSchemaNameRuRequiredErrorMessage],
   },
   nameEN: {
     type: String,
-    required: [true, 'Не указано название на английском'],
+    required: [true, movieSchemaNameEnRequiredErrorMessage],
   },
   owner: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'user',
-    required: [true, 'Не указан владелец'],
+    required: [true, movieSchemaOwnerRequiredErrorMessage],
   },
   thumbnail: {
     type: String,
-    required: [true, 'Не указан мини-постер'],
+    required: [true, moviesSchemaThumbnailRequiredErrorMessage],
     validate: [validator.isURL, urlValidationErrorMessage],
   },
   trailerLink: {
     type: String,
-    required: [true, 'Не указан трейлер'],
+    required: [true, moviesSchemaTrailerLinkRequiredErrorMessage],
     validate: [validator.isURL, urlValidationErrorMessage],
   },
   image: {
     type: String,
-    required: [true, 'Не указан постер'],
+    required: [true, moviesSchemaImageRequiredErrorMessage],
     validate: [validator.isURL, urlValidationErrorMessage],
   },
   description: {
     type: String,
-    required: [true, 'Не указано описание'],
+    required: [true, moviesSchemaDescriptionRequiredErrorMessage],
   },
   year: {
     type: String,
-    required: [true, 'Не указан год выпуска'],
+    required: [true, moviesSchemaYearRequiredErrorMessage],
   },
   duration: {
     type: Number,
-    required: [true, 'Не указана длительность'],
+    required: [true, moviesSchemaDurationRequiredErrorMessage],
   },
   director: {
     type: String,
-    required: [true, 'Не указан режиссёр'],
+    required: [true, moviesSchemaDirectorRequiredErrorMessage],
   },
   country: {
     type: String,
-    required: [true, 'Не указана страна'],
+    required: [true, moviesSchemaCountryRequiredErrorMessage],
   },
   movieId: {
     type: Number,
-    required: [true, 'Не указан ID фильма'],
+    required: [true, moviesSchemaMovieIdRequiredErrorMessage],
   },
 });
 

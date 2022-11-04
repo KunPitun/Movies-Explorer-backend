@@ -2,20 +2,20 @@ const { NODE_ENV, JWT_SECRET } = process.env;
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const User = require('../models/user');
+const { developmentJwtKey } = require('../utils/config');
 const NotFoundError = require('../errors/not-found-error');
-const InternalServerError = require('../errors/internal-server-error');
 const BadRequestError = require('../errors/bad-request-error');
 const ConflictError = require('../errors/conflict-error');
-
-const badRequestErrorMessage = 'Некорректный _id';
-const notFoundErrorMessage = 'Пользователь с данным _id не найден';
-const internalServerErrorMessage = 'Ошибка на стороне сервера';
-const conflictErrorMessage = 'Пользователь с данным email уже зарегистрирован';
+const {
+  userBadRequestErrorMessage,
+  userNotFoundErrorMessage,
+  userConflictErrorMessage,
+} = require('../utils/messages');
 
 module.exports.getUserMe = (req, res, next) => {
   User.findById(req.user._id)
     .orFail(() => {
-      throw new NotFoundError(notFoundErrorMessage);
+      throw new NotFoundError(userNotFoundErrorMessage);
     })
     .then((user) => res.send({ data: user }))
     .catch((err) => {
@@ -23,7 +23,7 @@ module.exports.getUserMe = (req, res, next) => {
         next(err);
         return;
       }
-      next(new InternalServerError(internalServerErrorMessage));
+      next(err);
     });
 };
 
@@ -33,12 +33,12 @@ module.exports.updateUser = (req, res, next) => {
     new: true, runValidators: true,
   })
     .orFail(() => {
-      throw new NotFoundError(notFoundErrorMessage);
+      throw new NotFoundError(userNotFoundErrorMessage);
     })
     .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err.code === 11000) {
-        next(new ConflictError(conflictErrorMessage));
+        next(new ConflictError(userConflictErrorMessage));
         return;
       }
       if (err.name === 'ValidationError') {
@@ -50,10 +50,10 @@ module.exports.updateUser = (req, res, next) => {
         return;
       }
       if (err.name === 'CastError') {
-        next(new BadRequestError(badRequestErrorMessage));
+        next(new BadRequestError(userBadRequestErrorMessage));
         return;
       }
-      next(new InternalServerError(internalServerErrorMessage));
+      next(err);
     });
 };
 
@@ -63,7 +63,7 @@ module.exports.login = (req, res, next) => {
     .then((user) => {
       const token = jwt.sign(
         { _id: user._id },
-        NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret',
+        NODE_ENV === 'production' ? JWT_SECRET : developmentJwtKey,
         {
           expiresIn: '7d',
         },
@@ -75,7 +75,7 @@ module.exports.login = (req, res, next) => {
         next(err);
         return;
       }
-      next(new InternalServerError(internalServerErrorMessage));
+      next(err);
     });
 };
 
@@ -94,13 +94,13 @@ module.exports.register = (req, res, next) => {
     })
     .catch((err) => {
       if (err.code === 11000) {
-        next(new ConflictError(conflictErrorMessage));
+        next(new ConflictError(userConflictErrorMessage));
         return;
       }
       if (err.name === 'ValidationError') {
         next(new BadRequestError(err.message));
         return;
       }
-      next(new InternalServerError(internalServerErrorMessage));
+      next(err);
     });
 };

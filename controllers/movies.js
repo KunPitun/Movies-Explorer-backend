@@ -1,19 +1,18 @@
 const Movie = require('../models/movie');
 const NotFoundError = require('../errors/not-found-error');
-const InternalServerError = require('../errors/internal-server-error');
 const BadRequestError = require('../errors/bad-request-error');
 const ForbiddenError = require('../errors/forbidden-error');
-
-const badRequestErrorMessage = 'Некорректный _id';
-const notFoundErrorMessage = 'Фильм с данным _id не найден';
-const internalServerErrorMessage = 'Ошибка на стороне сервера';
-const forbiddenErrorMessage = 'Недостаточно прав для выполнения данного действия';
+const {
+  moviesBadRequestErrorMessage,
+  moviesNotFoundErrorMessage,
+  moviesForbiddenErrorMessage,
+} = require('../utils/messages');
 
 module.exports.getMyMovies = (req, res, next) => {
   Movie.find({ owner: req.user._id })
     .then((movies) => res.send({ data: movies }))
-    .catch(() => {
-      next(new InternalServerError(internalServerErrorMessage));
+    .catch((err) => {
+      next(err);
     });
 };
 
@@ -51,35 +50,27 @@ module.exports.createMovie = (req, res, next) => {
         next(new BadRequestError(err.message));
         return;
       }
-      next(new InternalServerError(internalServerErrorMessage));
+      next(err);
     });
 };
 
 module.exports.deleteMovie = (req, res, next) => {
   Movie.findById(req.params.movieId)
     .orFail(() => {
-      throw new NotFoundError(notFoundErrorMessage);
+      throw new NotFoundError(moviesNotFoundErrorMessage);
     })
     .then((movie) => {
       if (movie.owner.toString() === req.user._id) {
         return movie.remove()
           .then((deletedMovie) => res.send({ data: deletedMovie }));
       }
-      throw new ForbiddenError(forbiddenErrorMessage);
+      throw new ForbiddenError(moviesForbiddenErrorMessage);
     })
     .catch((err) => {
-      if (err.name === 'ForbiddenError') {
-        next(err);
-        return;
-      }
-      if (err.name === 'NotFoundError') {
-        next(err);
-        return;
-      }
       if (err.name === 'CastError') {
-        next(new BadRequestError(badRequestErrorMessage));
+        next(new BadRequestError(moviesBadRequestErrorMessage));
         return;
       }
-      next(new InternalServerError(internalServerErrorMessage));
+      next(err);
     });
 };

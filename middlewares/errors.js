@@ -1,12 +1,7 @@
-const { isCelebrateError } = require('celebrate');
-
-const BadRequestErrCode = 400;
+const { internalServerErrorMessage } = require('../utils/messages');
 
 module.exports = (err, req, res, next) => {
-  if (isCelebrateError(err)) {
-    res.status(BadRequestErrCode).send({ message: 'Переданы некорректные данные' });
-    return;
-  }
-  res.status(err.statusCode).send({ message: err.message });
-  next();
+  res.status(err.statusCode || 500)
+    .send({ message: err.statusCode ? err.message : internalServerErrorMessage });
+  return next();
 };
