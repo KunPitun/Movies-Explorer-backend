@@ -32,7 +32,7 @@ app.use((req, res, next) => {
 
 app.use(requestLogger);
 
-app.use(limiter);
+
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
